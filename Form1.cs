@@ -52,8 +52,7 @@ namespace pr14_3_5_Savitsin
             listBox2.Items.Clear();
             if (File.Exists("task4.txt"))
             {
-                Queue<Person> youngQueue = new Queue<Person>();
-                Queue<Person> oldQueue = new Queue<Person>();
+                Queue<Person> queue = new Queue<Person>();
 
                 using (StreamReader sr = new StreamReader("task4.txt"))
                 {
@@ -62,53 +61,46 @@ namespace pr14_3_5_Savitsin
                         string str = sr.ReadLine();
                         string[] parts = str.Split(' ');
 
-                        string surname = parts[0];
-                        string name = parts[1];
-                        string otchestvo = parts[2];
-                        int age = int.Parse(parts[3]);
-                        double weight = double.Parse(parts[4]);
+                        Person person = new Person("", "", "", 0, 0.0);
 
-                        Person person = new Person(surname, name, otchestvo, age, weight);
-
-                        if (age < 40)
+                        person.Surname = parts[0];
+                        person.Name = parts[1];
+                        person.Otchestvo = parts[2];
+                        if (int.TryParse(parts[3], out int age))
                         {
-                            youngQueue.Enqueue(person);
+                            person.Age = int.Parse(parts[3]);
                         }
                         else
                         {
-                            oldQueue.Enqueue(person);
+                            person.Age = 20;
                         }
+                        if (double.TryParse(parts[4], out double weight))
+                        {
+                            person.Weight = double.Parse(parts[4]);
+                        }
+                        else
+                        {
+                            person.Weight = 60;
+                        }
+
+                        queue.Enqueue(person);
                     }
                 }
+                var youngPeople = queue.Where(p => p.Age < 40);
+                var oldPeople = queue.Where(p => p.Age >= 40);
                 listBox2.Items.Add("Люди младше 40");
                 listBox2.Items.Add("");
-                if (youngQueue.Count == 0)
+                foreach (var p in youngPeople)
                 {
-                    listBox2.Items.Add("Нет людей младше 40");
-                }
-                else
-                {
-                    while (youngQueue.Count > 0)
-                    {
-                        Person p = youngQueue.Dequeue();
-                        listBox2.Items.Add(p.ToString());
-                    }
+                    listBox2.Items.Add(p.ToString());
                 }
 
                 listBox2.Items.Add("");
                 listBox2.Items.Add("Люди старше 40");
                 listBox2.Items.Add("");
-                if (oldQueue.Count == 0)
+                foreach(var p in oldPeople)
                 {
-                    listBox2.Items.Add("Нет людей старше 40");
-                }
-                else
-                {
-                    while (oldQueue.Count > 0)
-                    {
-                        Person p = oldQueue.Dequeue();
-                        listBox2.Items.Add(p.ToString());
-                    }
+                    listBox2.Items.Add(p.ToString());
                 }
             }
             else
@@ -133,14 +125,34 @@ namespace pr14_3_5_Savitsin
 
                 for (int i = 0; i < fioLines.Length; i++)
                 {
+                    Person pe = new Person("", "", "", 0, 0.0);
+
                     string[] fio = fioLines[i].Split(' ');
                     string[] data = dataLines[i].Split(' ');
-                    Person person = new Person(fio[0], fio[1], fio[2], int.Parse(data[0]), double.Parse(data[1]));
-                    queue.Enqueue(person);
+                    pe.Surname = fio[0];
+                    pe.Name = fio[1];
+                    pe.Otchestvo = fio[2];
+                    if (int.TryParse(data[0], out int age))
+                    {
+                        pe.Age = int.Parse(data[0]);
+                    }
+                    else
+                    {
+                        pe.Age = 20;
+                    }
+                    if (double.TryParse(data[1], out double weight))
+                    {
+                        pe.Weight = double.Parse(data[1]);
+                    }
+                    else
+                    {
+                        pe.Weight = 60;
+                    }
+                   
+                    queue.Enqueue(pe);
                 }
 
-                List<Person> people = queue.ToList();
-                var groups = people.GroupBy(p => p.Surname[0]).OrderBy(g => g.Key);
+                var groups = queue.GroupBy(p => p.Surname[0]).OrderBy(g => g.Key);
 
                 foreach (var group in groups)
                 {
